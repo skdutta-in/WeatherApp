@@ -1,0 +1,17 @@
+:root{--bg:#f4f7fb;--card:#fff;--muted:#6b7280;--accent:#2563eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:#0f172a}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem;background:linear-gradient(90deg,var(--card),#eef3ff);box-shadow:0 1px 3px rgba(2,6,23,.06)}
+.topbar h1{margin:0;font-size:1.125rem}
+.controls{display:flex;gap:.5rem;align-items:center}
+.controls input{padding:.5rem;border-radius:8px;border:1px solid #d1d5db}
+.controls button{padding:.5rem .6rem;border-radius:8px;border:0;background:var(--accent);color:#fff}
+.controls select{padding:.4rem;border-radius:8px;border:1px solid #d1d5db}
+main{display:grid;grid-template-columns:1fr 320px;gap:1rem;padding:1rem}
+.current{background:var(--card);padding:1rem;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,.06)}
+.current .title{display:flex;align-items:center;justify-content:space-between}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.5rem}
+.grid .day{background:var(--card);padding:.6rem;border-radius:10px;text-align:center}
+.sidebar{background:var(--card);padding:1rem;border-radius:12px}
+footer{text-align:center;padding:1rem;color:var(--muted)}
+@media (max-width:900px){main{grid-template-columns:1fr} .sidebar{order:3}}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Advanced Weather App</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header class="topbar">
+<h1>Weather • Forecast</h1>
+<div class="controls">
+<input id="search" placeholder="Search city or ZIP" aria-label="Search city or ZIP">
+<button id="searchBtn">Search</button>
+<button id="geoBtn" title="Use current location">📍</button>
+<select id="units" aria-label="Units">
+<option value="metric">°C</option>
+<option value="imperial">°F</option>
+</select>
+</div>
+</header>
+
+
+<main>
+<section class="current" aria-live="polite">
+<!-- Current weather card -->
+</section>
+
+
+<section class="forecast">
+<h2>7-Day Forecast</h2>
+<div id="forecastGrid" class="grid"></div>
+</section>
+
+
+<section class="details">
+<h2>Hourly / Chart</h2>
+<canvas id="tempChart" height="120"></canvas>
+</section>
+
+
+<aside class="sidebar">
+<h3>Favorites</h3>
+<ul id="favorites"></ul>
+<button id="saveFav">Save current</button>
+<h3>Settings</h3>
+<label><input type="checkbox" id="autoUpdate"> Auto-update every 10 min</label>
+</aside>
+</main>
+
+
+<footer>
+<small>Data from OpenWeatherMap • PWA-ready starter</small>
+</footer>
+
+
+<script src="app.js" defer></script>
+<script>
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js').catch(console.error);
+}
+</script>
+</body>
+</html>
