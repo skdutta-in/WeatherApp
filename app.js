@@ -1,68 +1,88 @@
 /* Advanced Weather App - app.js
+Features:
+- Search by city/zipcode
+- Geolocation
+- Unit switching (metric/imperial)
+- 7-day forecast + hourly chart (Chart.js)
+- Favorites (localStorage)
+- Auto-update toggle
+- PWA support + offline caching (sw.js)
+
+
+IMPORTANT: Add your API key below:
+*/
+
+
+const OPENWEATHER_API_KEY = "4116627150616157193796ed6cf75ed0"; // <- REPLACE
+const DEFAULT_CITY = "Kolkata";
+
+
+// Elements
+const searchEl = document.getElementById('search');
+const searchBtn = document.getElementById('searchBtn');
+const geoBtn = document.getElementById('geoBtn');
+const unitsSelect = document.getElementById('units');
+const currentSection = document.querySelector('.current');
+const forecastGrid = document.getElementById('forecastGrid');
+const tempChartCtx = document.getElementById('tempChart').getContext('2d');
+const favoritesList = document.getElementById('favorites');
+const saveFavBtn = document.getElementById('saveFav');
+const autoUpdateCheckbox = document.getElementById('autoUpdate');
+
+
+let state = {
+coords: null,
+units: localStorage.getItem('units') || 'metric',
+current: null,
+forecast: null,
+chart: null,
+autoUpdateTimer: null,
+};
+
+
+unitsSelect.value = state.units;
+
+
+// Utilities
+function k2c(k){return k - 273.15}
+function fmtTemp(t){return (state.units === 'metric') ? `${Math.round(t)}°C` : `${Math.round(t)}°F`}
+
+
+// Build display
+function renderCurrent(data){
+currentSection.innerHTML = '';
+const card = document.createElement('div');
+card.className = 'card';
+card.innerHTML = `
+<div class="title">
+<div>
+<h2>${data.name || data.location}</h2>
+<div class="muted">${data.weather[0].description}</div>
+</div>
+<div>
+<div style="font-size:2rem">${Math.round(data.temp)}°</div>
+<div class="muted">Feels like ${Math.round(data.feels_like)}°</div>
+</div>
+</div>
+<div style="margin-top:.5rem;display:flex;gap:1rem;flex-wrap:wrap">
+<div>Humidity: ${data.humidity}%</div>
+<div>Wind: ${data.wind_speed} ${state.units === 'metric' ? 'm/s' : 'mph'}</div>
+<div>Pressure: ${data.pressure} hPa</div>
+</div>
+`;
+currentSection.appendChild(card);
 }
 
 
-// Fallback: fetch by city name (resolves to coords via weather endpoint)
-(resolves to coords via weather endpoint)
-async function fetchByName(q){
-try{
-const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(q)}&appid=${4116627150616157193796ed6cf75ed0}`);
-if(!res.ok) throw new Error('City not found');
-const root = await res.json();
-const lat = root.coord.lat, lon = root.coord.lon;
-await fetchByCoords(lat,lon);
-}catch(err){
-console.error(err);
-alert('City lookup failed');
-}
-}
-
-
-// Controls
-searchBtn.addEventListener('click', ()=>fetchByName(searchEl.value || DEFAULT_CITY));
-geoBtn.addEventListener('click', ()=>{
-if(!navigator.geolocation) return alert('Geolocation not supported');
-navigator.geolocation.getCurrentPosition(p=>{
-fetchByCoords(p.coords.latitude,p.coords.longitude);
-},err=>alert('Geolocation denied'));
-});
-unitsSelect.addEventListener('change', ()=>{
-state.units = unitsSelect.value;
-localStorage.setItem('units', state.units);
-// re-fetch current view
-if(state.coords) fetchByCoords(state.coords.latitude, state.coords.longitude, state.units);
-else if(state.current?.location) fetchByName(state.current.location);
-});
-saveFavBtn.addEventListener('click', saveCurrentToFav);
-
-
-// Auto-update
-autoUpdateCheckbox.addEventListener('change', ()=>{
-localStorage.setItem('auto_update', autoUpdateCheckbox.checked);
-if(autoUpdateCheckbox.checked) startAutoUpdate(); else stopAutoUpdate();
-});
-function startAutoUpdate(){
-stopAutoUpdate();
-state.autoUpdateTimer = setInterval(()=>{
-if(state.coords) fetchByCoords(state.coords.latitude, state.coords.longitude);
-}, 10 * 60 * 1000);
-}
-function stopAutoUpdate(){ if(state.autoUpdateTimer) clearInterval(state.autoUpdateTimer); }
-
-
-// Init
-(function init(){
-renderFavorites();
-const storedUnits = localStorage.getItem('units');
-if(storedUnits) state.units = storedUnits;
-if(localStorage.getItem('auto_update') === 'true') { autoUpdateCheckbox.checked = true; startAutoUpdate(); }
-// Try geolocation then default
-if(navigator.geolocation){
-navigator.geolocation.getCurrentPosition(p=>{
-state.coords = p.coords;
-fetchByCoords(p.coords.latitude,p.coords.longitude);
-}, ()=>fetchByName(DEFAULT_CITY));
-}else{
-fetchByName(DEFAULT_CITY);
-}
+function renderForecast(daily){
+forecastGrid.innerHTML = '';
+daily.forEach(day => {
+const el = document.createElement('div');
+el.className = 'day';
+const dt = new Date(day.dt * 1000);
+el.innerHTML = `
+<div>${dt.toLocaleDateString()}</div>
+<div style="font-weight:600">${Math.round(day.temp.day)}°</div>
+<div class="muted">${day.weather[0].main}</div>
+`;
 })();
